@@ -112,11 +112,25 @@ async function run() {
 
         //--------------------------------User--------------------------
         //filter user
-        app.get('/order', async(req, res) => {
+        app.get('/user', async(req, res) => {
             const email = req.query.email;
             const query = {email:email};
             const orders = await ordersCollection.find(query).toArray();
             res.send(orders)
+        })
+
+        //--- add user--
+        app.put('/user/:email', async(req,res) => {
+            const email = req.params.email;
+            const user = req.body;
+            const filter = {email: email};
+            const options = {upsert: true};
+            const updateDoc = {
+                $set: user,
+            };
+            const result = await usersCollection.updateOne(filter, updateDoc,options);
+            res.send(result)
+
         })
 
 
