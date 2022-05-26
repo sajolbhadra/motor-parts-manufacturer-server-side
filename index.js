@@ -88,9 +88,21 @@ async function run() {
 
         //----------------------------Order------------------------------
         //-----Insert An Order
-
+        app.post('/order', async (req, res) => {
+            const order = req.body;
+            console.log('Order Placed', order);
+            const result = await ordersCollection.insertOne(order);
+            res.send(result)
+            console.log(result)
+        });
 
         //-------Get All Order
+        app.get('/order', async (req, res) => {
+            const query = {};
+            const cursor = ordersCollection.find(query)
+            const items = await cursor.toArray();
+            res.send(items);
+        })
 
         //-----Update An order
 
