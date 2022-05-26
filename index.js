@@ -20,24 +20,29 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 
 async function run() {
-    try{
+    try {
         await client.connect();
         console.log('server online')
-        const itemsCollection = client.db('electricalworks').collection('items'); 
-        const usersCollection = client.db('electricalworks').collection('users'); 
+        const itemsCollection = client.db('motorpartsmanufacturer').collection('item');
+        const ordersCollection = client.db('motorpartsmanufacturer').collection('order');
+        const usersCollection = client.db('motorpartsmanufacturer').collection('user');
+        const reviewsCollection = client.db('motorpartsmanufacturer').collection('review');
 
+
+        //-------------------------------------Items----------------------------------
         //---------Insert an Item------------
         app.post('/item', async (req, res) => {
             const newItem = req.body;
             console.log('new item added', newItem);
-            const result= await itemsCollection.insertOne(newItem);
+            const result = await itemsCollection.insertOne(newItem);
             // res.send({result : 'success'})
             res.send(result)
+            console.log(result)
         });
 
         //---------Get all items----------
         app.get('/item', async (req, res) => {
-            const query ={};
+            const query = {};
             const cursor = itemsCollection.find(query)
             const items = await cursor.toArray();
             res.send(items);
@@ -46,20 +51,20 @@ async function run() {
         //--- Get Individual Item Details-------------
         app.get('/item/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             const result = await itemsCollection.findOne(query);
             res.send(result)
         })
 
-        //-----Update Item-----------
+        //-----Update Individual Item-----------
         app.put('/item/:id', async (req, res) => {
             const id = req.params.id;
             const updateItem = req.body;
-            const filter = {_id: ObjectId(id)};
-            const options = {upsert: true};
-            const updateDoc ={
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
                 $set: {
-                    quantity:updateItem.quantity
+                    quantity: updateItem.quantity
                 }
             };
             const result = await itemsCollection.updateOne(filter, updateDoc, options);
@@ -68,17 +73,63 @@ async function run() {
         })
 
         //--------Delete Individual Item---------------
-        app.delete('/item/:id', async(req, res) => {
+        app.delete('/item/:id', async (req, res) => {
             const id = req.params.id;
 
-            const query = {_id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             const result = await itemsCollection.deleteOne(query);
             res.send(result);
             console.log(id, result)
         })
 
+
+
+
+
+        //----------------------------Order------------------------------
+        //-----Insert An Order
+
+
+        //-------Get All Order
+
+        //-----Update An order
+
+        //-----Delete An Order
+
+
+
+        //--------------------------------User--------------------------
+        //filter user
+        app.get('/order', async(req, res) => {
+            const email = req.query.email;
+            const query = {email:email};
+            const orders = await ordersCollection.find(query).toArray();
+            res.send(orders)
+        })
+
+
+
+        
+        //-----------------------------Review---------------------------
+        //----insert review
+        app.post('/review', async (req, res) => {
+            const reviews = req.body;
+            console.log('new item added', reviews);
+            const result = await reviewsCollection.insertOne(reviews);
+            // res.send({result : 'success'})
+            res.send(result)
+            console.log(result)
+        });
+        //------get all review
+        app.get('/review', async (req, res) => {
+            const query = {};
+            const cursor = reviewsCollection.find(query)
+            const items = await cursor.toArray();
+            res.send(items);
+        })
+
     }
-    finally{
+    finally {
         // await client.close();
     }
 }
